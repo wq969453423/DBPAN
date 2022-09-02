@@ -11,6 +11,7 @@ using Newtonsoft.Json.Linq;
 using System.Data;
 using System.IO;
 using System.Net;
+using System.Threading;
 
 namespace DBPAN
 {
@@ -21,23 +22,24 @@ namespace DBPAN
         static string mainurl_v4_1 = "https://pan.baidu.com/share/list?uk=1102487041658&shareid=44750878449&order=other&desc=1&showempty=0&web=1&page=1&num=100&dir=%2Fsharelink1102487041658-418975818175612%2Fv4&t=0.40250305672514264&channel=chunlei&web=1&app_id=250528&bdstoken=&logid=NkIxQ0Y0QkMwNDM0QzJCRjU1NzI2ODA0Mjg2MzczMDU6Rkc9MQ==&clienttype=0&dp-logid=93351400152465930006";
         static string mainurl_v4_2 = "https://pan.baidu.com/share/list?uk=1100877385123&shareid=5250062146&order=other&desc=1&showempty=0&web=1&page=1&num=100&dir=%2FV4&t=0.07502994316364453&channel=chunlei&web=1&app_id=250528&bdstoken=&logid=Q0NBODdCRkMwMkZCN0FGNjVBQzE4RDJGRjE4MDA4OTQ6Rkc9MQ==&clienttype=0&dp-logid=89511200414542540020";
         static IDbConnection connection=null;
-        public Task Execute(IJobExecutionContext context)
+
+
+        public async Task Execute(IJobExecutionContext context)
         {
-            return Task.Run(async () =>
-            {
-                Console.WriteLine(DateTime.Now+"_开始_");
-                await Main();
-                Console.WriteLine(DateTime.Now + "_结束_");
-            });
+            Console.WriteLine(DateTime.Now.ToString() + "_开始_");
+            await Main();
+            Console.WriteLine(DateTime.Now.ToString()+"_结束_");
         }
 
 
         public async Task Main() {
             List<MainModel> listModel = new List<MainModel>();
-            GetBDPAN(listModel, mainurl_v4_1, "v4_1", Cookie_1);
-            GetBDPAN(listModel, mainurl_v4_2, "v4_2", Cookie_2);
-            
 
+            List<Task> tasks=new List<Task>();
+            tasks.Add(GetBDPAN(listModel, mainurl_v4_1, "v4_1", Cookie_1));
+            tasks.Add(GetBDPAN(listModel, mainurl_v4_2, "v4_2", Cookie_2));
+            await Task.WhenAll(tasks);
+            
             List<MainModel> inputDbModel = new List<MainModel>();
             decimal sizeGb = 0;
             foreach (var e in listModel)
@@ -57,11 +59,13 @@ namespace DBPAN
             await AddPanData(inputDbModel);
         }
 
-        public static void GetBDPAN(List<MainModel> listModel, string mainurl, string type, string Cookie)
+        public static async Task GetBDPAN(List<MainModel> listModel, string mainurl, string type, string Cookie)
         {
             Console.WriteLine(DateTime.Now + "_进入读取操作_");
-            var mainlist =  GetAsync(mainurl, "main", Cookie);
-            Parallel.ForEach(mainlist, i => {
+            var mainlist = await GetAsync(mainurl, "main", Cookie);
+            IEnumerable<MainModel> list;
+            foreach (var i in mainlist)
+            {
                 for (int j = 0; j < 100; j++)
                 {
                     string listurl = string.Empty;
@@ -73,38 +77,17 @@ namespace DBPAN
                     {
                         listurl = $@"https://pan.baidu.com/share/list?uk=1100877385123&shareid=5250062146&order=other&desc=1&showempty=0&web=1&page={j + 1}&num=100&dir={i.path}&t=0.3699776405839794&channel=chunlei&web=1&app_id=250528&bdstoken=&logid=NkIxQ0Y0QkMwNDM0QzJCRjU1NzI2ODA0Mjg2MzczMDU6Rkc9MQ==&clienttype=0&dp-logid=23339100164593380021";
                     }
-                    var list = GetAsync(listurl, "main", Cookie);
+                    list= await GetAsync(listurl, "main", Cookie);
                     listModel.AddRange(list);
-                    if (list.Count < 100)
+                    if (list.Count() < 100)
                     {
                         break;
                     }
                 }
-            });
-            //for (int i = 0; i < mainlist.Count; i++)
-            //{
-            //    for (int j = 0; j < 100; j++)
-            //    {
-            //        string listurl = string.Empty;
-            //        if (type == "v4_1")
-            //        {
-            //            listurl = $@"https://pan.baidu.com/share/list?uk=1102487041658&shareid=44750878449&order=other&desc=1&showempty=0&web=1&page={j + 1}&num=100&dir={mainlist[i].path}&t=0.3699776405839794&channel=chunlei&web=1&app_id=250528&bdstoken=&logid=NkIxQ0Y0QkMwNDM0QzJCRjU1NzI2ODA0Mjg2MzczMDU6Rkc9MQ==&clienttype=0&dp-logid=23339100164593380021";
-            //        }
-            //        else if (type == "v4_2")
-            //        {
-            //            listurl = $@"https://pan.baidu.com/share/list?uk=1100877385123&shareid=5250062146&order=other&desc=1&showempty=0&web=1&page={j + 1}&num=100&dir={mainlist[i].path}&t=0.3699776405839794&channel=chunlei&web=1&app_id=250528&bdstoken=&logid=NkIxQ0Y0QkMwNDM0QzJCRjU1NzI2ODA0Mjg2MzczMDU6Rkc9MQ==&clienttype=0&dp-logid=23339100164593380021";
-            //        }
-            //        var list =  GetAsync(listurl, "main", Cookie);
-            //        listModel.AddRange(list);
-            //        if (list.Count < 100)
-            //        {
-            //            break;
-            //        }
-            //    }
-            //}
+            }
         }
 
-        public static List<MainModel> GetAsync(string url, string type, string cookie)
+        public static async Task<IEnumerable<MainModel>> GetAsync(string url, string type, string cookie)
         {
 
             try
@@ -112,24 +95,18 @@ namespace DBPAN
                 string result = string.Empty;
                 HttpWebRequest reqS = (HttpWebRequest)WebRequest.Create(url);
                 reqS.Method = "GET";
-
                 //添加请求头
                 reqS.Headers.Add("Cookie", cookie);
                 reqS.ContentType = "application/json; charset=utf-8";
-
-                HttpWebResponse resS = (HttpWebResponse)reqS.GetResponse();
+                HttpWebResponse resS =  (HttpWebResponse)await reqS.GetResponseAsync();
                 Stream myResponseStream = resS.GetResponseStream();
                 StreamReader streamReader = new StreamReader(myResponseStream);
-                result = streamReader.ReadToEnd();
+                result = await streamReader.ReadToEndAsync();
                 streamReader.Close();
                 myResponseStream.Close();
-
                 JObject theResult = (JObject)JsonConvert.DeserializeObject(result);
-
                 string finalResult = theResult["list"].ToString();
-
-                List<MainModel> listS = JsonConvert.DeserializeObject<List<MainModel>>(finalResult);
-
+                IEnumerable<MainModel> listS = JsonConvert.DeserializeObject<IEnumerable<MainModel>>(finalResult);
                 return listS;
             }
             catch (Exception ex)

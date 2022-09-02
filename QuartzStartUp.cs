@@ -24,7 +24,7 @@ namespace DBPAN
 
             ITrigger triggerpickinfo = TriggerBuilder.Create()
                             .WithIdentity("JobPickInfo", "PickInfo")
-                            .WithCronSchedule("0 40 * * * ?")
+                            .WithCronSchedule("0 04 * * * ?")
                             .Build();
 
             //将触发器和任务器绑定到调度器中
