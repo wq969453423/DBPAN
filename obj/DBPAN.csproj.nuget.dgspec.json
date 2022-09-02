@@ -1,23 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Administrator\\Desktop\\DBPAN\\DBPAN.csproj": {}
+    "D:\\Users\\BSI\\Desktop\\Hp\\DBPAN\\DBPAN\\DBPAN.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Administrator\\Desktop\\DBPAN\\DBPAN.csproj": {
+    "D:\\Users\\BSI\\Desktop\\Hp\\DBPAN\\DBPAN\\DBPAN.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Administrator\\Desktop\\DBPAN\\DBPAN.csproj",
+        "projectUniqueName": "D:\\Users\\BSI\\Desktop\\Hp\\DBPAN\\DBPAN\\DBPAN.csproj",
         "projectName": "DBPAN",
-        "projectPath": "C:\\Users\\Administrator\\Desktop\\DBPAN\\DBPAN.csproj",
-        "packagesPath": "C:\\Users\\Administrator\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Administrator\\Desktop\\DBPAN\\obj\\",
+        "projectPath": "D:\\Users\\BSI\\Desktop\\Hp\\DBPAN\\DBPAN\\DBPAN.csproj",
+        "packagesPath": "C:\\Users\\BSI\\.nuget\\packages\\",
+        "outputPath": "D:\\Users\\BSI\\Desktop\\Hp\\DBPAN\\DBPAN\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\Administrator\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\BSI\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -25,8 +22,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "http://pm.ifcaapps.com:8081/repository/nuget-group/": {},
-          "http://pm.ifcaapps.com:8081/repository/nuget-huaxia/": {},
+          "http://192.168.80.56:5555/v3/index.json": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -72,22 +68,17 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[5.0.14, 5.0.14]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.200\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.400\\RuntimeIdentifierGraph.json"
         }
       }
     }
